@@ -25,11 +25,6 @@ builds:
     goarch:
       - amd64
       - arm64
-    ignore:
-      - goos: linux
-        goarch: arm64
-      - goos: darwin
-        goarch: amd64
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
