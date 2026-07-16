@@ -11,6 +11,11 @@ type Config struct {
 	Style           string
 	Language        string
 	UpdateChangelog bool
+	// BaseURL overrides the default API endpoint for the selected provider.
+	// Used by OpenAI-compatible providers (openai, lmstudio, gomodel).
+	BaseURL string
+	// APIKey is the credential sent to the selected provider, if required.
+	APIKey string
 }
 
 func defaults() Config {

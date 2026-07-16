@@ -41,5 +41,11 @@ func configFromFlags(cmd *cobra.Command) config.Config {
 	if v, err := cmd.Flags().GetBool("update-changelog"); err == nil {
 		cfg.UpdateChangelog = v
 	}
+	if v, err := cmd.Flags().GetString("base-url"); err == nil {
+		cfg.BaseURL = v
+	}
+	if v, err := cmd.Flags().GetString("api-key"); err == nil {
+		cfg.APIKey = v
+	}
 	return cfg
 }

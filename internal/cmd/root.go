@@ -16,6 +16,7 @@ import (
 	"github.com/afeldman/kairos/internal/prompt"
 	"github.com/afeldman/kairos/internal/provider"
 	_ "github.com/afeldman/kairos/internal/provider/ollama"
+	_ "github.com/afeldman/kairos/internal/provider/openai"
 	"github.com/spf13/cobra"
 )
 
@@ -30,6 +31,8 @@ func NewRootCmd() *cobra.Command {
 		style           string
 		language        string
 		updateChangelog bool
+		baseURL         string
+		apiKey          string
 	)
 
 	root := &cobra.Command{
@@ -49,6 +52,8 @@ By default (no subcommand), Kairos generates a commit message from staged change
 				Style:           style,
 				Language:        language,
 				UpdateChangelog: updateChangelog,
+				BaseURL:         baseURL,
+				APIKey:          apiKey,
 			})
 		},
 		SilenceErrors: true,
@@ -57,13 +62,15 @@ By default (no subcommand), Kairos generates a commit message from staged change
 
 	// Flags
 	root.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default ~/.config/kairos/config.yaml)")
-	root.PersistentFlags().StringVarP(&providerName, "provider", "p", "", "LLM provider (ollama, openai, anthropic, gemini, openrouter)")
+	root.PersistentFlags().StringVarP(&providerName, "provider", "p", "", "LLM provider (ollama, openai, lmstudio, gomodel, anthropic, gemini, openrouter)")
 	root.PersistentFlags().StringVarP(&model, "model", "m", "", "LLM model name")
 	root.PersistentFlags().Float64Var(&temperature, "temperature", 0, "LLM temperature (0.0-1.0)")
 	root.PersistentFlags().IntVar(&history, "history", 0, "number of recent commits to include")
 	root.PersistentFlags().StringVarP(&style, "style", "s", "", "output style (conventional, github)")
 	root.PersistentFlags().StringVarP(&language, "language", "l", "", "output language")
 	root.PersistentFlags().BoolVar(&updateChangelog, "update-changelog", false, "update CHANGELOG.md")
+	root.PersistentFlags().StringVar(&baseURL, "base-url", "", "override the provider's API endpoint (e.g. http://localhost:1234/v1 for LM Studio)")
+	root.PersistentFlags().StringVar(&apiKey, "api-key", "", "API key for the selected provider")
 
 	// Subcommands
 	root.AddCommand(newCommitCmd())
@@ -116,6 +123,12 @@ func runCommit(cmd *cobra.Command, cfg config.Config) error {
 	if cfg.Language != "" {
 		loadedCfg.Language = cfg.Language
 	}
+	if cfg.BaseURL != "" {
+		loadedCfg.BaseURL = cfg.BaseURL
+	}
+	if cfg.APIKey != "" {
+		loadedCfg.APIKey = cfg.APIKey
+	}
 
 	// 2. Detect project type (before git context, independent).
 	_ = detect.Detect(".")
@@ -139,7 +152,7 @@ func runCommit(cmd *cobra.Command, cfg config.Config) error {
 	messages := prompt.Build(pc, loadedCfg)
 
 	// 7. Get provider.
-	prov, err := provider.Get(loadedCfg.Provider, nil)
+	prov, err := provider.Get(loadedCfg.Provider, loadedCfg)
 	if err != nil {
 		return err
 	}

@@ -22,6 +22,8 @@ func Load(flags *pflag.FlagSet) (Config, error) {
 	v.SetDefault("style", d.Style)
 	v.SetDefault("language", d.Language)
 	v.SetDefault("update_changelog", d.UpdateChangelog)
+	v.SetDefault("base_url", d.BaseURL)
+	v.SetDefault("api_key", d.APIKey)
 
 	v.SetEnvPrefix("KAIROS")
 	v.AutomaticEnv()
@@ -52,5 +54,7 @@ func Load(flags *pflag.FlagSet) (Config, error) {
 		Style:           v.GetString("style"),
 		Language:        v.GetString("language"),
 		UpdateChangelog: v.GetBool("update_changelog"),
+		BaseURL:         v.GetString("base_url"),
+		APIKey:          v.GetString("api_key"),
 	}, nil
 }
