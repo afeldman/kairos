@@ -2,8 +2,8 @@
 // tags, releases, and changelog entries using local or remote LLMs.
 package main
 
-import "fmt"
+import "github.com/afeldman/kairos/internal/cmd"
 
 func main() {
-	fmt.Println("kairos: not yet implemented")
+	cmd.Execute()
 }

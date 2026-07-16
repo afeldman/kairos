@@ -1,0 +1,20 @@
+# Binaries
+/kairos
+/kairos.exe
+*.out
+*.test
+*.test.exe
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
+vendor/

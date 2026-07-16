@@ -1,0 +1,91 @@
+# GoReleaser configuration for Kairos
+# See https://goreleaser.com for details
+version: 2
+
+project_name: kairos
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: ./cmd/kairos
+    binary: kairos
+    ldflags:
+      - -s -w
+      - -X github.com/afeldman/kairos/internal/build.Version={{ .Version }}
+      - -X github.com/afeldman/kairos/internal/build.Commit={{ .Commit }}
+      - -X github.com/afeldman/kairos/internal/build.Date={{ .Date }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: linux
+        goarch: arm64
+      - goos: darwin
+        goarch: amd64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_
+      {{- if eq .Os "darwin" }}macOS
+      {{- else if eq .Os "linux" }}Linux
+      {{- end }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "arm64" }}arm64
+      {{- end }}
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
+
+snapshot:
+  name_template: "{{ .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - "^refactor:"
+  groups:
+    - title: "🚀 Features"
+      regexp: '^.*?feat(\([^\)]*\))?!?:\s.*$'
+      order: 0
+    - title: "🐛 Bug Fixes"
+      regexp: '^.*?fix(\([^\)]*\))?!?:\s.*$'
+      order: 1
+    - title: "📦 Other Changes"
+      order: 999
+
+brews:
+  - name: kairos
+    repository:
+      owner: afeldman
+      name: homebrew-tap
+      branch: main
+      directory: Formula
+    directory: Formula
+    homepage: "https://github.com/afeldman/kairos"
+    description: "Git Context Engine — understands project history to generate high-quality commit messages, tags, and changelogs using LLMs"
+    license: "Apache-2.0"
+    commit_author:
+      name: "Anton Feldmann"
+      email: "ant@feldmann.at"
+    commit_msg_template: "brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    test: |
+      system "#{bin}/kairos", "--help"
+    install: |
+      bin.install "kairos"
