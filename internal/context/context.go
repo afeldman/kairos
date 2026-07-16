@@ -6,8 +6,8 @@ package context
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/afeldman/kairos/internal/config"
@@ -90,8 +90,8 @@ func (b *Builder) Build(ctx context.Context, repo git.Repository, cfg config.Con
 
 	// Read project files from CWD (best-effort).
 	if cwd, err := os.Getwd(); err == nil {
-		pc.ReadmeExcerpt = readFirstLines(filepath.Join(cwd, "README.md"), 10)
-		pc.ChangelogExcerpt = readFirstLines(filepath.Join(cwd, "CHANGELOG.md"), 10)
+		pc.ReadmeExcerpt = readFirstLines(cwd, "README.md", 10)
+		pc.ChangelogExcerpt = readFirstLines(cwd, "CHANGELOG.md", 10)
 	}
 
 	if len(errs) > 0 {
@@ -100,10 +100,12 @@ func (b *Builder) Build(ctx context.Context, repo git.Repository, cfg config.Con
 	return pc, nil
 }
 
-// readFirstLines reads up to n lines from a file. Returns empty string if
-// the file does not exist or cannot be read.
-func readFirstLines(path string, n int) string {
-	data, err := os.ReadFile(path)
+// readFirstLines reads up to n lines from a file inside the given root
+// directory. It uses os.DirFS to scope file access and prevent directory
+// traversal attacks.
+func readFirstLines(root, name string, n int) string {
+	fsys := os.DirFS(root)
+	data, err := fs.ReadFile(fsys, name)
 	if err != nil {
 		return ""
 	}

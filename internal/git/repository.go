@@ -9,8 +9,27 @@ import (
 	"errors"
 	"fmt"
 	"os/exec"
+	"slices"
 	"strings"
 )
+
+// allowedGitArgs is the set of git subcommands and flags that the
+// Repository methods are permitted to pass to the git binary.
+// This prevents argument injection through the exec.CommandContext call.
+var allowedGitArgs = []string{
+	"diff", "--cached", "--name-only", "--no-color",
+	"status", "--short",
+	"rev-parse", "--abbrev-ref", "--is-inside-work-tree", "HEAD",
+	"log", "--oneline",
+	"describe", "--tags", "--abbrev=0", "--long",
+}
+
+// isAllowedGitArg reports whether arg is in the allowlist.
+func isAllowedGitArg(arg string) bool {
+	// In Go ≥1.26, slices.Contains handles exact string matches.
+	// Flag-like args (e.g. "-d", "--name-only") are matched literally.
+	return slices.Contains(allowedGitArgs, arg)
+}
 
 // ErrNothingStaged indicates there are no staged changes to build a commit
 // message from. Callers can wrap it with a localized message.
@@ -40,6 +59,16 @@ func NewRepository(dir string) *ExecRepo {
 }
 
 func (r *ExecRepo) git(ctx context.Context, args ...string) (string, error) {
+	// Validate every argument against an allowlist to prevent command injection.
+	for _, arg := range args {
+		// Allow numeric-only args like "-5" used for git log -N.
+		if isNumericArg(arg) {
+			continue
+		}
+		if !isAllowedGitArg(arg) {
+			return "", fmt.Errorf("git: disallowed argument %q", arg)
+		}
+	}
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = r.Dir
 	out, err := cmd.Output()
@@ -51,6 +80,20 @@ func (r *ExecRepo) git(ctx context.Context, args ...string) (string, error) {
 		return "", fmt.Errorf("git %s: %w\n%s", strings.Join(args, " "), err, string(stderr))
 	}
 	return strings.TrimRight(string(out), "\n"), nil
+}
+
+// isNumericArg reports whether arg is a "-N" style flag where N is a
+// non-negative integer (e.g. "-5", "-10"). These are used for git log -N.
+func isNumericArg(arg string) bool {
+	if len(arg) < 2 || arg[0] != '-' {
+		return false
+	}
+	for _, c := range arg[1:] {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 func (r *ExecRepo) DiffStaged(ctx context.Context) (string, error) {
