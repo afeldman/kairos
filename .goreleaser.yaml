@@ -32,7 +32,7 @@ builds:
     mod_timestamp: "{{ .CommitTimestamp }}"
 
 archives:
-  - format: tar.gz
+  - formats: ["tar.gz"]
     name_template: >-
       {{ .ProjectName }}_{{ .Version }}_
       {{- if eq .Os "darwin" }}macOS
@@ -75,8 +75,7 @@ brews:
     repository:
       owner: afeldman
       name: homebrew-tap
-      branch: main
-      directory: Formula
+      branch: master
     directory: Formula
     homepage: "https://github.com/afeldman/kairos"
     description: "Git Context Engine — understands project history to generate high-quality commit messages, tags, and changelogs using LLMs"
