@@ -28,7 +28,7 @@ func TestGenerate_Success(t *testing.T) {
 			"done": true,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}))
 	defer srv.Close()
 
@@ -57,7 +57,7 @@ func TestGenerate_Success(t *testing.T) {
 func TestGenerate_ServerError(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"error":"something broke"}`))
+		_, _ = w.Write([]byte(`{"error":"something broke"}`))
 	}))
 	defer srv.Close()
 

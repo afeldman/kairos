@@ -105,7 +105,7 @@ func (c *Client) Generate(ctx context.Context, req provider.Request) (string, er
 	if err != nil {
 		return "", fmt.Errorf("%s: %w (is the server running at %s?)", c.name, err, c.baseURL)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	raw, err := io.ReadAll(resp.Body)
 	if err != nil {

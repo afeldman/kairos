@@ -85,7 +85,7 @@ func (c *Client) Generate(ctx context.Context, req provider.Request) (string, er
 	if err != nil {
 		return "", fmt.Errorf("ollama: %w (is ollama running? try 'ollama serve')", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	raw, err := io.ReadAll(resp.Body)
 	if err != nil {
