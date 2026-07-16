@@ -69,7 +69,7 @@ func (r *ExecRepo) git(ctx context.Context, args ...string) (string, error) {
 			return "", fmt.Errorf("git: disallowed argument %q", arg)
 		}
 	}
-	cmd := exec.CommandContext(ctx, "git", args...)
+	cmd := exec.CommandContext(ctx, "git", args...) // #nosec G204 — args validated above via allowlist
 	cmd.Dir = r.Dir
 	out, err := cmd.Output()
 	if err != nil {
