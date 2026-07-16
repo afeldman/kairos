@@ -48,13 +48,9 @@ checksum:
 sboms:
   - artifacts: archive
 
-snapshot:
-  name_template: "{{ .Version }}-next"
-
 release:
   prerelease: auto
   draft: false
-
   footer: |
     ## Installation
 

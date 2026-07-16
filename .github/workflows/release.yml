@@ -59,6 +59,9 @@ jobs:
             --severity HIGH,CRITICAL \
             --ignore-unfixed \
             .
+      - name: Install syft (SBOM generation)
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sudo sh -s -- -b /usr/local/bin
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
