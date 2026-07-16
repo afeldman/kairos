@@ -8,7 +8,11 @@ type Config struct {
 	Model           string
 	Temperature     float64
 	History         int
-	Style           string
+	Style string
+	// Language is the LLM output language (e.g. "english", "german").
+	// Left empty by default so the UI locale (internal/i18n) can fall
+	// back to the system locale instead of always resolving to English.
+	// prompt.Build treats an empty value as "english".
 	Language        string
 	UpdateChangelog bool
 	// BaseURL overrides the default API endpoint for the selected provider.
@@ -25,7 +29,6 @@ func defaults() Config {
 		Temperature:     0.2,
 		History:         20,
 		Style:           "conventional",
-		Language:        "english",
 		UpdateChangelog: true,
 	}
 }

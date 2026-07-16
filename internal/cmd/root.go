@@ -3,6 +3,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/afeldman/kairos/internal/detect"
 	"github.com/afeldman/kairos/internal/formatter"
 	"github.com/afeldman/kairos/internal/git"
+	"github.com/afeldman/kairos/internal/i18n"
 	"github.com/afeldman/kairos/internal/prompt"
 	"github.com/afeldman/kairos/internal/provider"
 	_ "github.com/afeldman/kairos/internal/provider/ollama"
@@ -133,11 +135,19 @@ func runCommit(cmd *cobra.Command, cfg config.Config) error {
 	// 2. Detect project type (before git context, independent).
 	_ = detect.Detect(".")
 
+	locale := i18n.Detect(loadedCfg.Language)
+
 	// 3. Open repository.
+	if !git.IsRepo(ctx, ".") {
+		return fmt.Errorf("%s", i18n.T(locale, i18n.NotAGitRepo))
+	}
 	repo := git.NewRepository(".")
 
 	// 4. Ensure there are staged changes.
 	if err := git.EnsureStaged(ctx, repo); err != nil {
+		if errors.Is(err, git.ErrNothingStaged) {
+			return fmt.Errorf("%s", i18n.T(locale, i18n.NothingStaged))
+		}
 		return err
 	}
 

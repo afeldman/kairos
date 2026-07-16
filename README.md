@@ -14,6 +14,7 @@ Kairos is **not** just an AI commit message generator. It builds rich context fr
 - 🤖 **LLM Providers** — Ollama (default), OpenAI-compatible (OpenAI, LM Studio, [GoModel](https://github.com/ENTERPILOT/GoModel) gateway), with pluggable interface for Anthropic, Gemini, OpenRouter
 - 📝 **Conventional Commits** — structured JSON output parsed into type, scope, subject, body, and breaking changes
 - ⚙️ **Configurable** — platform-native config dir (via [go-appdir](https://go.linka.cloud/go-appdir)), `KAIROS_*` environment variables, CLI flags
+- 🌍 **Localized CLI messages** — Kairos's own errors (e.g. the not-a-git-repo message) follow `language`/`--language`/`KAIROS_LANGUAGE` if set, else the system locale (`LC_ALL`/`LC_MESSAGES`/`LANG`), else English (currently `en`/`de`)
 - 🧪 **Fully Tested** — unit tests with mocked Git and provider dependencies, no network required
 
 ## Quick Start

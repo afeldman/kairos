@@ -6,10 +6,15 @@ package git
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
 )
+
+// ErrNothingStaged indicates there are no staged changes to build a commit
+// message from. Callers can wrap it with a localized message.
+var ErrNothingStaged = errors.New("nothing staged")
 
 // Repository abstracts a Git repository so callers can collect context
 // without depending on a real git binary.
@@ -103,6 +108,14 @@ func (r *ExecRepo) ChangedFiles(ctx context.Context) ([]string, error) {
 	return strings.Split(out, "\n"), nil
 }
 
+// IsRepo reports whether dir is inside a Git working tree.
+func IsRepo(ctx context.Context, dir string) bool {
+	cmd := exec.CommandContext(ctx, "git", "rev-parse", "--is-inside-work-tree")
+	cmd.Dir = dir
+	out, err := cmd.Output()
+	return err == nil && strings.TrimSpace(string(out)) == "true"
+}
+
 // EnsureStaged returns an error if there is nothing staged for commit.
 func EnsureStaged(ctx context.Context, repo Repository) error {
 	diff, err := repo.DiffStaged(ctx)
@@ -110,7 +123,7 @@ func EnsureStaged(ctx context.Context, repo Repository) error {
 		return fmt.Errorf("check staged changes: %w", err)
 	}
 	if strings.TrimSpace(diff) == "" {
-		return fmt.Errorf("nothing staged; run 'git add' first")
+		return ErrNothingStaged
 	}
 	return nil
 }

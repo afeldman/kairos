@@ -19,13 +19,22 @@ func Build(pc context.ProjectContext, cfg config.Config) []provider.Message {
 	}
 }
 
+// outputLanguage returns cfg's configured LLM output language, defaulting
+// to English when unset.
+func outputLanguage(lang string) string {
+	if lang == "" {
+		return "english"
+	}
+	return lang
+}
+
 func systemPrompt(cfg config.Config) string {
 	var b strings.Builder
 	b.WriteString("You are a Git Context Engine that generates high-quality commit messages.\n\n")
 	b.WriteString("Rules:\n")
 	b.WriteString("- Respond with ONLY a JSON object, no other text.\n")
 	b.WriteString("- Use Conventional Commits format.\n")
-	b.WriteString(fmt.Sprintf("- Language: %s\n", cfg.Language))
+	fmt.Fprintf(&b, "- Language: %s\n", outputLanguage(cfg.Language))
 	b.WriteString("- Keep the subject line under 72 characters.\n")
 	b.WriteString("- The body should explain what and why, not how.\n")
 	b.WriteString("\n")

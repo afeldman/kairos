@@ -76,6 +76,7 @@ brews:
       owner: afeldman
       name: homebrew-tap
       branch: master
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     directory: Formula
     homepage: "https://github.com/afeldman/kairos"
     description: "Git Context Engine — understands project history to generate high-quality commit messages, tags, and changelogs using LLMs"

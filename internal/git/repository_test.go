@@ -152,6 +152,20 @@ func TestEnsureStaged_HasChanges(t *testing.T) {
 	}
 }
 
+func TestIsRepo(t *testing.T) {
+	dir := InitTestRepo(t)
+	if !IsRepo(context.Background(), dir) {
+		t.Error("IsRepo() = false, want true for initialized repo")
+	}
+}
+
+func TestIsRepo_NotARepo(t *testing.T) {
+	dir := t.TempDir()
+	if IsRepo(context.Background(), dir) {
+		t.Error("IsRepo() = true, want false for plain directory")
+	}
+}
+
 func TestFirstLine(t *testing.T) {
 	tests := []struct {
 		input string
