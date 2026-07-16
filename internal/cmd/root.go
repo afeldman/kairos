@@ -61,7 +61,7 @@ By default (no subcommand), Kairos generates a commit message from staged change
 	}
 
 	// Flags
-	root.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default ~/.config/kairos/config.yaml)")
+	root.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default: platform config dir, e.g. ~/Library/Application Support/kairos/config.yaml on macOS)")
 	root.PersistentFlags().StringVarP(&providerName, "provider", "p", "", "LLM provider (ollama, openai, lmstudio, gomodel, anthropic, gemini, openrouter)")
 	root.PersistentFlags().StringVarP(&model, "model", "m", "", "LLM model name")
 	root.PersistentFlags().Float64Var(&temperature, "temperature", 0, "LLM temperature (0.0-1.0)")

@@ -13,7 +13,7 @@ Kairos is **not** just an AI commit message generator. It builds rich context fr
 - 🔍 **Git Context Engine** — collects staged diff, branch, recent commits, last tag, changed files, project type, README/CHANGELOG excerpts
 - 🤖 **LLM Providers** — Ollama (default), OpenAI-compatible (OpenAI, LM Studio, [GoModel](https://github.com/ENTERPILOT/GoModel) gateway), with pluggable interface for Anthropic, Gemini, OpenRouter
 - 📝 **Conventional Commits** — structured JSON output parsed into type, scope, subject, body, and breaking changes
-- ⚙️ **Configurable** — `~/.config/kairos/config.yaml`, `KAIROS_*` environment variables, CLI flags
+- ⚙️ **Configurable** — platform-native config dir (via [go-appdir](https://go.linka.cloud/go-appdir)), `KAIROS_*` environment variables, CLI flags
 - 🧪 **Fully Tested** — unit tests with mocked Git and provider dependencies, no network required
 
 ## Quick Start
@@ -54,7 +54,7 @@ kairos -m llama3.2:3b
 
 ### Configuration
 
-Create `~/.config/kairos/config.yaml`:
+Create `config.yaml` in Kairos's platform config dir (macOS: `~/Library/Application Support/kairos`, Linux: `~/.config/kairos`, Windows: `%APPDATA%\kairos`):
 
 ```yaml
 provider: ollama

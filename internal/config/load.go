@@ -2,15 +2,24 @@ package config
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	appdir "go.linka.cloud/go-appdir"
 )
 
+// dirs resolves platform-native application directories for Kairos
+// (e.g. ~/Library/Application Support/kairos on macOS, ~/.config/kairos
+// on Linux, %APPDATA%\kairos on Windows).
+var dirs = appdir.New("kairos")
+
+// ConfigDir returns the directory Kairos reads config.yaml from.
+func ConfigDir() string {
+	return dirs.UserConfig()
+}
+
 // Load resolves Config from, in increasing priority: built-in defaults,
-// the user's ~/.config/kairos/config.yaml, KAIROS_* environment
+// the user's config.yaml (see ConfigDir), KAIROS_* environment
 // variables, and finally flags (if a non-nil FlagSet is given).
 func Load(flags *pflag.FlagSet) (Config, error) {
 	v := viper.New()
@@ -28,9 +37,7 @@ func Load(flags *pflag.FlagSet) (Config, error) {
 	v.SetEnvPrefix("KAIROS")
 	v.AutomaticEnv()
 
-	if home, err := os.UserHomeDir(); err == nil {
-		v.AddConfigPath(filepath.Join(home, ".config", "kairos"))
-	}
+	v.AddConfigPath(ConfigDir())
 	v.SetConfigName("config")
 	v.SetConfigType("yaml")
 

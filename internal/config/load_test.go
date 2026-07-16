@@ -7,9 +7,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func writeConfigFile(t *testing.T, home, contents string) {
+func writeConfigFile(t *testing.T, contents string) {
 	t.Helper()
-	dir := filepath.Join(home, ".config", "kairos")
+	dir := ConfigDir()
 	if err := osMkdirAll(dir); err != nil {
 		t.Fatalf("mkdir config dir: %v", err)
 	}
@@ -37,7 +37,7 @@ func TestLoad_Defaults(t *testing.T) {
 func TestLoad_ConfigFileOverridesDefaults(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
-	writeConfigFile(t, home, "provider: openai\nmodel: gpt-4o\n")
+	writeConfigFile(t,"provider: openai\nmodel: gpt-4o\n")
 
 	cfg, err := Load(nil)
 	if err != nil {
@@ -54,7 +54,7 @@ func TestLoad_ConfigFileOverridesDefaults(t *testing.T) {
 func TestLoad_EnvOverridesConfigFile(t *testing.T) {
 	home := t.TempDir()
 	t.Setenv("HOME", home)
-	writeConfigFile(t, home, "provider: openai\n")
+	writeConfigFile(t,"provider: openai\n")
 	t.Setenv("KAIROS_PROVIDER", "anthropic")
 
 	cfg, err := Load(nil)
