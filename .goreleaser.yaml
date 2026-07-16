@@ -21,6 +21,7 @@ builds:
     goos:
       - linux
       - darwin
+      - windows
     goarch:
       - amd64
       - arm64
@@ -48,8 +49,32 @@ archives:
 checksum:
   name_template: "{{ .ProjectName }}_{{ .Version }}_checksums.txt"
 
+# Software Bill of Materials
+sboms:
+  - artifacts: archive
+
 snapshot:
   name_template: "{{ .Version }}-next"
+
+release:
+  prerelease: auto
+  draft: false
+
+  footer: |
+    ## Installation
+
+    ### Homebrew
+
+    ```bash
+    brew install afeldman/tap/kairos
+    ```
+
+    ### Download
+
+    Download the archive for your platform below.
+
+    ---
+    Generated with GoReleaser.
 
 changelog:
   sort: asc
@@ -60,32 +85,44 @@ changelog:
       - "^ci:"
       - "^chore:"
       - "^refactor:"
+
   groups:
     - title: "🚀 Features"
       regexp: '^.*?feat(\([^\)]*\))?!?:\s.*$'
       order: 0
+
     - title: "🐛 Bug Fixes"
       regexp: '^.*?fix(\([^\)]*\))?!?:\s.*$'
       order: 1
+
     - title: "📦 Other Changes"
       order: 999
 
 brews:
   - name: kairos
+
     repository:
       owner: afeldman
       name: homebrew-tap
       branch: master
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+
     directory: Formula
+
     homepage: "https://github.com/afeldman/kairos"
+
     description: "Git Context Engine — understands project history to generate high-quality commit messages, tags, and changelogs using LLMs"
+
     license: "Apache-2.0"
+
     commit_author:
       name: "Anton Feldmann"
-      email: "ant@feldmann.at"
+      email: "anton.feldmann@gmail.com"
+
     commit_msg_template: "brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+
     test: |
-      system "#{bin}/kairos", "--help"
+      system "#{bin}/kairos", "--version"
+
     install: |
       bin.install "kairos"
